@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纸鹤领取中心</title>
+    <!-- 引入样式表 -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- 背景装饰图层 -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <!-- 主界面容器 -->
+    <div class="glass-container">
+        <h1>✨ 纸鹤自动领取系统</h1>
+        
+        <!-- 领取表单 -->
+        <form id="claim-form">
+            <div class="form-group">
+                <label for="ycy_uid">易次元 UID</label>
+                <input type="text" id="ycy_uid" placeholder="请输入你的UID" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="qq">QQ号 (验证密码)</label>
+                <input type="text" id="qq" placeholder="请输入预留的QQ号" required autocomplete="off">
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn">
+                <span class="btn-text">立即领取</span>
+                <div class="loader"></div>
+            </button>
+        </form>
+
+        <!-- 结果展示区域 -->
+        <div id="result-area">
+            <div id="result-content">
+                <!-- JS 会在这里插入结果 -->
+            </div>
+        </div>
+    </div>
+
+    <a href="/admin" class="admin-link">管理员入口</a>
+
+    <!-- 引入脚本 -->
+    <script src="/static/script.js"></script>
+</body>
+</html>

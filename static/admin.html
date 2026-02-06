@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 纸鹤分发</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* 针对后台的一些特定样式覆盖 */
+        .glass-container {
+            max-width: 800px;
+            /* 宽一点 */
+        }
+
+        .admin-section {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #444;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-num {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+
+        .radio-group {
+            margin-bottom: 10px;
+        }
+
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-container">
+        <h1>🛠️ 系统管理后台</h1>
+
+        <!-- 数据概览 -->
+        <div class="admin-section">
+            <h2>📊 数据概览</h2>
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-10">-</div>
+                    <div class="stat-label">10鹤库存</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-5">-</div>
+                    <div class="stat-label">5鹤库存</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-3">-</div>
+                    <div class="stat-label">3鹤库存</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-1">-</div>
+                    <div class="stat-label">1鹤库存</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-users">-</div>
+                    <div class="stat-label">总用户</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-claimed">-</div>
+                    <div class="stat-label">已领取</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导入用户 -->
+        <div class="admin-section">
+            <h2>👥 导入用户数据</h2>
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                请粘贴 Excel 数据或 CSV 文本。格式顺序：<b>易次元UID 昵称 QQ号 纸鹤数量</b> <br>
+                支持空格、逗号或制表符分隔。一行一个用户。
+            </p>
+            <form id="import-form">
+                <textarea id="user-data" placeholder="例如：
+123456  小明  888888  18
+654321  小红  999999  5"></textarea>
+                <button type="submit" class="btn" style="padding: 8px;">开始导入</button>
+                <span id="import-status" style="margin-left: 10px; font-size: 14px;"></span>
+            </form>
+        </div>
+
+        <!-- 添加卡密 -->
+        <div class="admin-section">
+            <h2>💳 添加卡密库存</h2>
+            <form id="card-form">
+                <div class="radio-group">
+                    <label><input type="radio" name="card-value" value="10" checked> 10鹤面值</label>
+                    <label><input type="radio" name="card-value" value="5"> 5鹤面值</label>
+                    <label><input type="radio" name="card-value" value="3"> 3鹤面值</label>
+                    <label><input type="radio" name="card-value" value="1"> 1鹤面值</label>
+                </div>
+                <textarea id="card-content" placeholder="粘贴卡密，一行一个..."></textarea>
+                <button type="submit" class="btn" style="padding: 8px;">添加卡密</button>
+                <span id="card-status" style="margin-left: 10px; font-size: 14px;"></span>
+            </form>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="/" class="btn"
+                style="display: inline-block; width: auto; padding: 10px 30px; background: #666; text-decoration: none;">返回前台</a>
+        </div>
+    </div>
+
+    <script src="/static/admin.js"></script>
+</body>
+
+</html>
