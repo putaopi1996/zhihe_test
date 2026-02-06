@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: card_system
+    ports:
+      - "8000:8000"
+    volumes:
+      # 把本地的数据库映射进去，这样数据不会丢失
+      - ./database.db:/app/database.db
+      # 如果你想修改配置不需要重启镜像，也可以映射 config.py (可选)
+      # - ./config.py:/app/config.py
+    restart: always

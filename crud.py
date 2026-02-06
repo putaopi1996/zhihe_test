@@ -1,141 +1,244 @@
 # crud.py
-# 这个文件负责具体的"干活"逻辑：增删改查数据库，以及计算卡密分配
-# CRUD = Create(增), Read(查), Update(改), Delete(删)
+# =============================================
+# 数据库操作函数 (CRUD)
+# =============================================
+# CRUD = Create(创建), Read(读取), Update(更新), Delete(删除)
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-import models, schemas
-import datetime
+from typing import List, Tuple, Optional, Dict
+import models
+import schemas
 
-# --- 核心算法 ---
 
-def calculate_card_combination(target_amount: int):
-    """
-    核心算法：计算凑出目标数量所需的 10, 5, 3 面值组合。
-    优先消耗大面值。
-    返回一个字典: {10: count, 5: count, 3: count} 或者 None (如果凑不出来)
-    """
-    # 暴力尝试/回溯法。因为数值通常不大，这非常快。
-    # 优先尝试最多的 10
-    max_10 = target_amount // 10
-    for num_10 in range(max_10, -1, -1):
-        remainder_10 = target_amount - (num_10 * 10)
-        
-        # 尝试 5
-        max_5 = remainder_10 // 5
-        for num_5 in range(max_5, -1, -1):
-            remainder_5 = remainder_10 - (num_5 * 5)
-            
-            # 尝试 3
-            max_3 = remainder_5 // 3
-            for num_3 in range(max_3, -1, -1):
-                remainder_3 = remainder_5 - (num_3 * 3)
+# =============================================
+# 用户相关操作
+# =============================================
 
-                # 剩下的直接用 1 填充 (因为 1 是最小单位，所以一定能除尽)
-                num_1 = remainder_3
-                return {10: num_10, 5: num_5, 3: num_3, 1: num_1}
-    
-    return None # 理论上有了1之后，只要是正整数都能凑出来
-
-# --- 用户相关操作 ---
-
-def get_user_by_uid(db: Session, ycy_uid: str):
-    """根据易次元UID查找用户"""
+def get_user_by_uid(db: Session, ycy_uid: str) -> Optional[models.User]:
+    """通过易次元UID查找用户"""
     return db.query(models.User).filter(models.User.ycy_uid == ycy_uid).first()
 
-def create_user(db: Session, user: schemas.UserImport):
-    """创建新用户"""
-    # 先检查是否存在，存在则更新，不存在则创建
-    db_user = get_user_by_uid(db, user.ycy_id)
-    if db_user:
-        db_user.nickname = user.nickname
-        db_user.qq = user.qq
-        db_user.zhihe_count = user.zhihe
-        # 注意：不重置 has_claimed，如果用户已经领过了 update 也没用
+
+def get_users_paginated(db: Session, page: int, page_size: int) -> Tuple[List[models.User], int]:
+    """分页获取用户列表"""
+    total = db.query(models.User).count()
+    users = db.query(models.User).offset((page - 1) * page_size).limit(page_size).all()
+    return users, total
+
+
+def create_or_update_user(db: Session, user_data: schemas.UserImport) -> models.User:
+    """创建或更新用户"""
+    existing = db.query(models.User).filter(models.User.ycy_uid == user_data.ycy_id).first()
+    
+    if existing:
+        existing.nickname = user_data.nickname
+        existing.qq = user_data.qq
+        existing.zhihe_count = user_data.zhihe
+        db.commit()
+        db.refresh(existing)
+        return existing
     else:
-        db_user = models.User(
-            ycy_uid=user.ycy_id,
-            nickname=user.nickname,
-            qq=user.qq,
-            zhihe_count=user.zhihe
+        new_user = models.User(
+            ycy_uid=user_data.ycy_id,
+            nickname=user_data.nickname,
+            qq=user_data.qq,
+            zhihe_count=user_data.zhihe,
+            has_claimed=False
         )
-        db.add(db_user)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+
+
+def update_user(db: Session, user_id: int, data: schemas.UserUpdate) -> Optional[models.User]:
+    """更新用户信息"""
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        return None
+    
+    if data.nickname is not None:
+        user.nickname = data.nickname
+    if data.qq is not None:
+        user.qq = data.qq
+    if data.zhihe_count is not None:
+        user.zhihe_count = data.zhihe_count
+    if data.has_claimed is not None:
+        user.has_claimed = data.has_claimed
+        if not data.has_claimed:
+            user.claimed_at = None
+    
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(user)
+    return user
 
-# --- 卡密相关操作 ---
 
-def add_cards(db: Session, cards_content: str, value: int):
-    """
-    批量添加卡密
-    cards_content: 多行字符串，一行一个卡密
-    value: 面值
-    """
+def delete_user(db: Session, user_id: int) -> bool:
+    """删除用户"""
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        return False
+    db.delete(user)
+    db.commit()
+    return True
+
+
+# =============================================
+# 卡密相关操作
+# =============================================
+
+def get_cards_paginated(
+    db: Session, 
+    page: int, 
+    page_size: int,
+    value: Optional[int] = None,
+    used: Optional[bool] = None
+) -> Tuple[List[models.Card], int]:
+    """分页获取卡密列表（可筛选）"""
+    query = db.query(models.Card)
+    
+    if value is not None:
+        query = query.filter(models.Card.value == value)
+    if used is not None:
+        query = query.filter(models.Card.is_used == used)
+    
+    total = query.count()
+    cards = query.offset((page - 1) * page_size).limit(page_size).all()
+    return cards, total
+
+
+def add_cards(db: Session, content: str, value: int) -> int:
+    """批量添加卡密"""
+    lines = content.strip().split('\n')
     count = 0
-    lines = cards_content.strip().split('\n')
+    
     for line in lines:
         code = line.strip()
-        if not code:
-            continue
-        # 检查是否已存在
-        exists = db.query(models.Card).filter(models.Card.content == code).first()
-        if not exists:
-            new_card = models.Card(content=code, value=value)
-            db.add(new_card)
-            count += 1
+        if code:
+            # 检查是否已存在
+            existing = db.query(models.Card).filter(models.Card.code == code).first()
+            if not existing:
+                card = models.Card(code=code, value=value, is_used=False)
+                db.add(card)
+                count += 1
+    
     db.commit()
     return count
 
-def get_available_cards_count(db: Session):
-    """统计当前各面值卡密的可用库存"""
-    stats = {}
-    for val in [10, 5, 3, 1]:
+
+def update_card(db: Session, card_id: int, data: schemas.CardUpdate) -> Optional[models.Card]:
+    """更新卡密信息"""
+    card = db.query(models.Card).filter(models.Card.id == card_id).first()
+    if not card:
+        return None
+    
+    if data.code is not None:
+        card.code = data.code
+    if data.value is not None:
+        card.value = data.value
+    if data.is_used is not None:
+        card.is_used = data.is_used
+        if not data.is_used:
+            card.used_by = None
+            card.used_at = None
+    
+    db.commit()
+    db.refresh(card)
+    return card
+
+
+def delete_card(db: Session, card_id: int) -> bool:
+    """删除卡密"""
+    card = db.query(models.Card).filter(models.Card.id == card_id).first()
+    if not card:
+        return False
+    db.delete(card)
+    db.commit()
+    return True
+
+
+def get_available_cards_count(db: Session) -> Dict[str, int]:
+    """获取各面值可用卡密数量"""
+    result = {}
+    for value in [10, 5, 3, 1]:
         count = db.query(models.Card).filter(
-            models.Card.value == val, 
+            models.Card.value == value,
             models.Card.is_used == False
         ).count()
-        stats[val] = count
-    return stats
+        result[str(value)] = count
+    return result
 
-def allocate_cards_for_user(db: Session, user: models.User, combination: dict):
+
+# =============================================
+# 卡密分配算法
+# =============================================
+
+def calculate_card_combination(target: int) -> Optional[Dict[int, int]]:
     """
-    为用户实际分配卡密 (数据库事务操作)
-    user: 用户对象
-    combination: {10: count, 5: count, 3: count} 算法算出来的结果
+    计算凑出目标数字的卡密组合
+    
+    使用贪心算法：优先使用大面值的卡密
+    返回格式: {面值: 数量} 例如 {10: 1, 5: 1, 3: 1} 表示18
     """
+    if target <= 0:
+        return None
+    
+    result = {10: 0, 5: 0, 3: 0, 1: 0}
+    remaining = target
+    
+    # 贪心：从大到小尝试
+    for value in [10, 5, 3, 1]:
+        if remaining >= value:
+            count = remaining // value
+            result[value] = count
+            remaining -= count * value
+    
+    if remaining != 0:
+        return None
+    
+    return result
+
+
+def allocate_cards_for_user(
+    db: Session, 
+    user: models.User, 
+    combination: Dict[int, int]
+) -> Optional[List[str]]:
+    """
+    为用户分配卡密
+    
+    1. 检查库存是否充足
+    2. 标记卡密为已使用
+    3. 更新用户状态
+    """
+    import datetime
+    
     allocated_cards = []
     
-    # 检查库存并锁定卡密
-    for val, count in combination.items():
-        if count == 0:
+    # 检查库存并分配
+    for value, count in combination.items():
+        if count <= 0:
             continue
-            
-        # 查找可用卡密，使用 limit 取出需要的数量
-        # with_for_update() 在某些数据库(如Postgres/MySQL)可以加锁避免并发问题
-        # SQLite 对并发支持默认是锁库的，所以简单的查询即可，但在高并发下可能需要更严谨的处理
-        # 这里对于新手项目，直接查询更新即可
-        cards = db.query(models.Card).filter(
-            models.Card.value == val,
+        
+        available = db.query(models.Card).filter(
+            models.Card.value == value,
             models.Card.is_used == False
         ).limit(count).all()
         
-        if len(cards) < count:
-            return None # 库存不足！
-            
-        allocated_cards.extend(cards)
-    
-    # 执行分配
-    try:
-        for card in allocated_cards:
+        if len(available) < count:
+            # 库存不足，回滚
+            return None
+        
+        for card in available:
             card.is_used = True
-            card.used_by_uid = user.ycy_uid
-        
-        user.has_claimed = True
-        user.claimed_at = datetime.datetime.now()
-        
-        db.commit()
-        return allocated_cards
-    except Exception as e:
-        db.rollback()
-        raise e
+            card.used_by = user.ycy_uid
+            card.used_at = datetime.datetime.now()
+            allocated_cards.append(card.code)
+    
+    # 更新用户状态
+    user.has_claimed = True
+    user.claimed_at = datetime.datetime.now()
+    
+    db.commit()
+    return allocated_cards

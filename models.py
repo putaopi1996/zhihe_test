@@ -42,7 +42,7 @@ class Card(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # 卡密的内容，比如 "ABCD-1234-EFGH"
-    content = Column(String, unique=True, index=True, comment="卡密内容")
+    code = Column(String, unique=True, index=True, comment="卡密内容")
     
     # 这张卡密值多少纸鹤：10, 5, 或 3
     value = Column(Integer, index=True, comment="面值")
@@ -51,4 +51,7 @@ class Card(Base):
     is_used = Column(Boolean, default=False, comment="是否已使用")
     
     # 是被哪个UID领走的
-    used_by_uid = Column(String, nullable=True, index=True, comment="使用者UID")
+    used_by = Column(String, nullable=True, index=True, comment="使用者UID")
+    
+    # 使用时间
+    used_at = Column(DateTime, nullable=True, comment="使用时间")

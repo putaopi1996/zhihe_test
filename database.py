@@ -7,8 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # 数据库文件的位置
-# ./card_system.db 表示在当前目录下创建一个名为 card_system.db 的文件
-SQLALCHEMY_DATABASE_URL = "sqlite:///./card_system.db"
+# ./database.db 表示在当前目录下创建一个名为 database.db 的文件
+SQLALCHEMY_DATABASE_URL = "sqlite:///./database.db"
 
 # 创建数据库引擎
 # check_same_thread=False 是 SQLite 在多线程环境下的特殊配置

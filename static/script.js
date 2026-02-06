@@ -73,23 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // 辅助函数：显示成功结果
     function showSuccess(data) {
         let cardsHtml = '';
-        // 遍历所有卡密，生成 HTML
-        data.cards.forEach(card => {
+        // 遍历所有卡密，生成 HTML (cards 是字符串数组)
+        data.cards.forEach(cardCode => {
             cardsHtml += `
-            <div class="card-item" onclick="copyText('${card.content}')" title="点击复制">
-                <span>${card.content}</span>
-                <span style="font-size: 12px; color: #666; background: #eee; padding: 2px 6px; border-radius: 4px;">${card.value}鹤</span>
+            <div class="card-item" onclick="copyText('${cardCode}')" title="点击复制">
+                <span>${cardCode}</span>
+                <span class="copy-icon">📋</span>
             </div>`;
         });
 
         const html = `
-            <div class="result-card">
-                <div class="success-header">🎉 ${data.message}</div>
-                <div style="margin-bottom: 10px; font-size: 14px; text-align: center;">
-                    共获得 <b>${data.zhihe_total}</b> 纸鹤
+            <div class="result-card success">
+                <div class="success-icon">🎉</div>
+                <div class="success-nickname">${data.nickname}</div>
+                <div class="success-message">${data.message}</div>
+                <div class="success-stats">
+                    <span class="zhihe-count">${data.zhihe_total}</span>
+                    <span class="zhihe-label">纸鹤</span>
                 </div>
-                <div>${cardsHtml}</div>
-                <div class="copy-hint">点击卡密可以直接复制</div>
+                <div class="cards-container">${cardsHtml}</div>
+                <div class="copy-hint">💡 点击卡密可以直接复制</div>
             </div>
         `;
 
