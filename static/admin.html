@@ -384,6 +384,224 @@
             padding-top: 20px;
             border-top: 1px solid var(--border-color);
         }
+
+        /* =========================================
+           手机端响应式适配 - 全面优化版
+           ========================================= */
+
+        @media screen and (max-width: 768px) {
+
+            /* 基础布局 */
+            body {
+                padding: 0;
+                display: block;
+            }
+
+            .admin-container {
+                margin: 0;
+                padding: 15px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 20px;
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            /* 统计卡片 - 2x4 网格 */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .stat-card {
+                padding: 12px;
+                min-height: auto;
+            }
+
+            .stat-value {
+                font-size: 22px !important;
+            }
+
+            .stat-label {
+                font-size: 11px !important;
+                white-space: nowrap;
+            }
+
+            /* 标签导航 - 横向滚动 */
+            .tab-nav {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 0;
+                padding-bottom: 5px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-btn {
+                flex-shrink: 0;
+                padding: 10px 15px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            /* 内容卡片 */
+            .content-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .content-card h2 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            /* 表格容器 - 横向滚动 */
+            .table-wrapper {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .data-table {
+                min-width: 600px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            /* 操作按钮 */
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .btn-edit,
+            .btn-delete {
+                padding: 6px 10px;
+                font-size: 11px;
+                width: auto;
+                margin-bottom: 0;
+            }
+
+            /* 模态框 */
+            .modal-content {
+                width: 95%;
+                max-width: none;
+                margin: 5% auto;
+                padding: 20px 15px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-content h3 {
+                font-size: 18px;
+            }
+
+            /* 表单输入 */
+            input[type="text"],
+            input[type="number"],
+            select {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                /* 防止iOS缩放 */
+                margin-bottom: 10px;
+            }
+
+            textarea {
+                font-size: 14px;
+                min-height: 120px;
+            }
+
+            /* 导入区域 */
+            .glass-container {
+                padding: 15px !important;
+                margin-bottom: 15px;
+            }
+
+            .glass-container h3 {
+                font-size: 16px;
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+            }
+
+            /* 筛选行 */
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row>* {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            /* 分页 */
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .pagination button {
+                margin: 3px;
+            }
+
+            /* 内联表单 */
+            .inline-form {
+                flex-direction: column;
+            }
+
+            .inline-form>* {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .admin-container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .stat-value {
+                font-size: 18px !important;
+            }
+
+            .stat-label {
+                font-size: 10px !important;
+            }
+
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .content-card {
+                padding: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+
+            .modal-content {
+                padding: 15px 10px;
+            }
+        }
     </style>
 </head>
 

@@ -348,3 +348,101 @@ input:focus {
     text-align: center;
     margin-top: 10px;
 }
+
+/* ========================================= */
+/* 手机端响应式适配 */
+/* ========================================= */
+
+@media screen and (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .glass-container {
+        padding: 25px 20px;
+        border-radius: 15px;
+    }
+
+    h1 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input {
+        padding: 10px 12px;
+        font-size: 16px;
+        /* 防止iOS自动缩放 */
+    }
+
+    .btn {
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    /* 背景装饰 - 在手机上缩小 */
+    .shape-1 {
+        width: 300px;
+        height: 300px;
+    }
+
+    .shape-2 {
+        width: 250px;
+        height: 250px;
+    }
+
+    /* 成功结果区域 */
+    .success-nickname {
+        font-size: 22px;
+    }
+
+    .zhihe-count {
+        font-size: 32px;
+    }
+
+    .zhihe-label {
+        font-size: 16px;
+    }
+
+    .card-item {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .result-card.success {
+        padding: 20px 15px;
+    }
+
+    /* 管理员按钮 */
+    #admin-login-btn {
+        top: 10px !important;
+        right: 10px !important;
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .glass-container {
+        padding: 20px 15px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    .success-icon {
+        font-size: 36px;
+    }
+
+    .success-nickname {
+        font-size: 20px;
+    }
+
+    .zhihe-count {
+        font-size: 28px;
+    }
+}
