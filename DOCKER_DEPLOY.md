@@ -34,26 +34,36 @@ sudo usermod -aG docker $USER
 
 ---
 
-### 第二步：上传项目文件
+### 第二步：从 GitHub 拉取代码
 
-把整个项目文件夹上传到服务器。推荐使用以下工具：
+```bash
+# 安装 git（如果没有）
+sudo apt install git -y
 
-| 工具 | 说明 |
-|------|------|
-| **WinSCP** | Windows 用户首选，拖拽上传 |
-| **FileZilla** | 跨平台，免费好用 |
-| **scp 命令** | `scp -r project_one user@你的服务器IP:/home/user/` |
+# 克隆你的仓库（替换成你的仓库地址）
+git clone https://github.com/你的用户名/zhihe_test.git
 
-假设你上传到了 `/home/user/project_one`
+# 进入项目目录
+cd zhihe_test
+```
+
+> 💡 你的仓库地址可以在 GitHub 页面点击绿色的 "Code" 按钮查看
 
 ---
 
-### 第三步：启动服务
+### 第三步：修改配置（可选）
+
+如果需要修改管理员密码：
+```bash
+nano config.py
+# 修改 ADMIN_PASSWORD 的值，按 Ctrl+X 保存退出
+```
+
+---
+
+### 第四步：启动服务
 
 ```bash
-# 进入项目目录
-cd /home/user/project_one
-
 # 构建并启动（后台运行）
 docker-compose up -d --build
 ```
@@ -66,7 +76,7 @@ Creating card_system ... done
 
 ---
 
-### 第四步：验证是否成功
+### 第五步：验证是否成功
 
 ```bash
 # 查看容器状态
@@ -134,7 +144,13 @@ docker-compose restart
 ### Q: 如何更新代码？
 
 ```bash
-# 拉取新代码或上传新文件
+# 进入项目目录
+cd zhihe_test
+
+# 从 GitHub 拉取最新代码
+git pull origin main
+
+# 重新构建并启动
 docker-compose down
 docker-compose up -d --build
 ```
